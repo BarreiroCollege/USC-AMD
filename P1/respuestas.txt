@@ -1,0 +1,68 @@
+> PREGUNTA 1
+
+Se reemplazan todas las , por . para importar los decimales con "sed -i 's/,/./g' buques.csv".
+Usando Datagrip, se importan los datos haciendo click derecho e Import. Se especifica ; como
+delimitador.
+Se eliminan los barcos que no son del 2020: "DELETE FROM datos WHERE ano<>2020"
+Se ejecuta el siguiente statement para reemplazar las comas originales: "UPDATE datos
+SET artes=replace(artes, '.', ',');"
+
+> PREGUNTA 2
+
+SELECT COUNT(d.porto) cuenta, d.porto
+FROM datos d
+WHERE lista = 4
+GROUP BY d.porto
+ORDER BY cuenta DESC;
+
+> PREGUNTA 3
+
+SELECT d.zona_admin, d.lista, COUNT(d.*) barcos
+FROM datos d
+GROUP BY d.zona_admin, d.lista
+ORDER BY d.zona_admin, d.lista, barcos DESC;
+
+> PREGUNTA 4 & 5
+
+Instalada siguiendo el README e importando los datos en la tabla foránea. Para volcar los datos, se
+ejecuta la siguiente consulta (la cual copia toda la tabla):
+
+INSERT INTO datos_dw
+SELECT * FROM datos;
+
+> PREGUNTA 6
+
+Ejecutando la consulta
+
+SELECT pg_size_pretty(pg_table_size('datos'))        normal,
+       pg_size_pretty(cstore_table_size('datos_dw')) cstore;
+
+se puede comparar el tamaño de las dos tablas, el cual resulta ser 2528kB y 198kB (respectivamente).
+Para las consultas, se analiza el coste de las consultas de las preguntas 2 y 3. Para la pregunta 2,
+se obtiene un tiempo de planificación de 0.163ms y de ejecución de 3.607ms en la tabla normal y de
+2.589ms y 24.388ms para la cstore. En cuanto a la pregunta 3, se tienen tiempos de 0.083ms y 15.436ms
+para la tabal normal y 0.256ms y 36.166ms para la cstore.
+
+Viendo estos resultados, se puede apreciar como claramente depende del tipo de consulta. La primera
+consulta se planifica más rápido en la tabla normal, pero para la segunda es al revés. Sin embargo,
+en la ejecución parece que siempre es más rápido en la tabla normal, pero esto puede ser porque hay
+un número relativamente bajo de datos (y cstore funciona mejor para grandes cantidades de datos).
+Es decir, que si hubiese una elevada cantidad de datos, es posible que se ejecutase más rápido ya
+que se puede apreciar en la segunda consulta como la diferencia no es muy significativa.
+
+> PREGUNTA 7
+
+Instalé la base de datos sobre el motor normal, y siguiendo los pasos del README no da ningún tipo
+de problema.
+La primera sección contiene comentarios acerca de la instalación, y algunos ajustes para la base de
+datos. A continuación, define unos tipos de datos personalizados (como nombre o teléfono), para
+facilitar su uso más adelante.
+La siguiente sección es la definición de esquemas, con las tablas y los datos. Contiene cinco esquemas
+en total (no usará el public, como viene siendo habitual). Además, por el medio (L177-L202 por
+ejemplo) ejecuta scripts para volcar datos de un CSV a la base de datos.
+La sección que viene a continuación es la inserción de comentarios en las tablas y columnas. No hay
+mucho más que comentar sobre esto (perdón por el chiste malo).
+Tras la sección de comentarios viene la sección para definir las claves primarias. Y a continuación
+las claves foráneas para cada una de las tablas.
+La última sección es la sección de vistas, para poder visualizar los datos más cómodamente (ya sea
+como administrador de la base de datos o para realizar consultas más ágilmente luego).
